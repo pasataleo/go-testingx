@@ -2,15 +2,15 @@
 
 ## FEATURES
 
-- `CaptureAll` wraps several values in a `*Value` chain without calling a function, asserted on from the last value to the first as `Call` does. It is what `Capture` did before it became generic
+- `CaptureAll`, for capturing several values at once.
 
 ## IMPROVEMENTS
 
-- `Capture` is generic and takes a single value, which keeps its static type: a nil `error` is still an error to the error assertions, and `Capture()` on the result returns `T` rather than `interface{}`, as with `CallAs`
+- `Capture` is generic over a single value, so it keeps the value's type.
 
 ## BUG FIXES
 
-- The error assertions accept a nil error passed to `CaptureAll`. Going through `...any` turns a nil `error` into a nil `interface{}`, so `NoError()` failed with `expected error type, got interface {}`, and `ErrorContains`, `ErrorCode` and the rest reported that instead of `got nil`. A nil value of any other type is still rejected as not an error
+- The error assertions accept a nil error passed to `CaptureAll`.
 
 <!--
 ## SECURITY
@@ -24,13 +24,11 @@ Functionality that will be removed in a future release.
 
 ## BREAKING CHANGES
 
-- `Capture` takes exactly one value: `Capture[T any](t testing.TB, value T) *Value[T]`. Capturing several values at once moved to `CaptureAll`
-- `Capture(t, nil)` no longer compiles, since there is nothing to infer `T` from
+- `Capture` takes exactly one value.
 
 ## UPGRADE NOTES
 
-- `testingx.Capture(t, a, b)` becomes `testingx.CaptureAll(t, a, b)`
-- `testingx.Capture(t, nil)` becomes `testingx.Capture[error](t, nil)`, or whichever type the value stands in for
+- `Capture(t, a, b)` becomes `CaptureAll(t, a, b)`, and `Capture(t, nil)` becomes `Capture[error](t, nil)`.
 
 # v0.1.0
 
