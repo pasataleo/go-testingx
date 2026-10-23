@@ -556,3 +556,65 @@ func TestCapture(t *testing.T) {
 		t.Errorf("unexpected error: %s", mock.ErrorMessage)
 	}
 }
+
+// A nil error passed to Capture arrives as a nil interface{}, so the error
+// assertions have to recognise it as a nil error rather than as a value that
+// is not an error at all.
+func TestCapture_nilError(t *testing.T) {
+	var nilErr error
+
+	tcs := map[string]struct {
+		values    []any
+		validate  func(value *Value[interface{}])
+		wantError string
+	}{
+		"NoError": {
+			values:   []any{nilErr},
+			validate: func(value *Value[interface{}]) { value.NoError() },
+		},
+		"Error": {
+			values:    []any{nilErr},
+			validate:  func(value *Value[interface{}]) { value.Error() },
+			wantError: "expected error, got nil",
+		},
+		"ErrorContains": {
+			values:    []any{nilErr},
+			validate:  func(value *Value[interface{}]) { value.ErrorContains("boom") },
+			wantError: `expected error containing "boom", got nil`,
+		},
+		"ErrorCode": {
+			values:    []any{nilErr},
+			validate:  func(value *Value[interface{}]) { value.ErrorCode(errorsx.NotFound) },
+			wantError: `expected error with code "not_found", got nil`,
+		},
+		"chained after another value": {
+			values:   []any{"hello", nilErr},
+			validate: func(value *Value[interface{}]) { value.NoError().Equal("hello") },
+		},
+	}
+	for name, tc := range tcs {
+		t.Run(name, func(t *testing.T) {
+			mock := &mocks.T{T: t}
+			tc.validate(Capture(mock, tc.values...))
+
+			if mock.FatalMessage != "" {
+				t.Errorf("unexpected fatal: %s", mock.FatalMessage)
+			}
+			if mock.ErrorMessage != tc.wantError {
+				t.Errorf("\nwant: %q\ngot:  %q", tc.wantError, mock.ErrorMessage)
+			}
+		})
+	}
+}
+
+// A nil value that is not an error is still not an error.
+func TestCapture_nilNonError(t *testing.T) {
+	mock := &mocks.T{T: t}
+	var nilSlice []string
+
+	Capture(mock, nilSlice).NoError()
+
+	if !strings.Contains(mock.FatalMessage, "expected error type") {
+		t.Errorf("want fatal %q, got %q", "expected error type", mock.FatalMessage)
+	}
+}

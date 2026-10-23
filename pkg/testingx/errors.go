@@ -18,6 +18,12 @@ func (value *Value[Want]) asError() (error, bool) {
 		return nil, false
 	}
 
+	// A nil error passed to Capture arrives as a nil interface{}, having lost
+	// its static type on the way through ...any, so it counts as a nil error.
+	if value.current.Kind() == reflect.Interface && value.current.IsNil() {
+		return nil, true
+	}
+
 	if !value.current.Type().Implements(errorType) {
 		value.t.Fatalf("expected error type, got %s", value.current.Type())
 		return nil, false

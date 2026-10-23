@@ -1,3 +1,39 @@
+# v0.1.1
+
+<!--
+## FEATURES
+New functionality added in this release.
+-->
+
+<!--
+## IMPROVEMENTS
+Enhancements to existing functionality.
+-->
+
+## BUG FIXES
+
+- The error assertions accept a nil error passed to `Capture`. Going through `...any` turns a nil `error` into a nil `interface{}`, so `Capture(t, err).NoError()` failed with `expected error type, got interface {}` when `err` was nil, and `ErrorContains`, `ErrorCode` and the rest reported that instead of `got nil`. A nil value of any other type is still rejected as not an error
+
+<!--
+## SECURITY
+Vulnerabilities or security-related changes addressed in this release.
+-->
+
+<!--
+## DEPRECATIONS
+Functionality that will be removed in a future release.
+-->
+
+<!--
+## BREAKING CHANGES
+Changes that are not backwards compatible and require updates from consumers.
+-->
+
+<!--
+## UPGRADE NOTES
+Steps required when upgrading from a previous version.
+-->
+
 # v0.1.0
 
 ## FEATURES
