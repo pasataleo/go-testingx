@@ -109,7 +109,33 @@ func CallAs[T any](t testing.TB, fn any, args ...any) *Value[T] {
 	return execute[T](t, fn, args...)
 }
 
-func Capture(t testing.TB, values ...any) *Value[interface{}] {
+// Capture wraps a single value in a *Value without calling a function. The
+// value keeps its static type, so a nil error is still an error to the error
+// assertions, and Capture() on the result returns T.
+func Capture[T any](t testing.TB, value T) *Value[T] {
+	t.Helper()
+
+	rv := reflect.ValueOf(&value).Elem()
+	if rv.Kind() == reflect.Interface && !rv.IsNil() {
+		// A non-nil interface is asserted on as the value it holds, as
+		// CaptureAll does. Only a nil one needs its static type kept.
+		rv = rv.Elem()
+	}
+
+	return &Value[T]{
+		t:       t,
+		current: rv,
+		next: &Value[T]{
+			t:       t,
+			current: reflect.Value{},
+		},
+	}
+}
+
+// CaptureAll wraps several values in a *Value chain without calling a
+// function. Like Call, the chain runs from the last value to the first, so
+// CaptureAll(t, v, err) is asserted on as .NoError().Equal(v).
+func CaptureAll(t testing.TB, values ...any) *Value[interface{}] {
 	t.Helper()
 
 	current := &Value[interface{}]{

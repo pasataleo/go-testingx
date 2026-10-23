@@ -1,18 +1,16 @@
-# v0.1.1
+# v0.2.0
 
-<!--
 ## FEATURES
-New functionality added in this release.
--->
 
-<!--
+- `CaptureAll` wraps several values in a `*Value` chain without calling a function, asserted on from the last value to the first as `Call` does. It is what `Capture` did before it became generic
+
 ## IMPROVEMENTS
-Enhancements to existing functionality.
--->
+
+- `Capture` is generic and takes a single value, which keeps its static type: a nil `error` is still an error to the error assertions, and `Capture()` on the result returns `T` rather than `interface{}`, as with `CallAs`
 
 ## BUG FIXES
 
-- The error assertions accept a nil error passed to `Capture`. Going through `...any` turns a nil `error` into a nil `interface{}`, so `Capture(t, err).NoError()` failed with `expected error type, got interface {}` when `err` was nil, and `ErrorContains`, `ErrorCode` and the rest reported that instead of `got nil`. A nil value of any other type is still rejected as not an error
+- The error assertions accept a nil error passed to `CaptureAll`. Going through `...any` turns a nil `error` into a nil `interface{}`, so `NoError()` failed with `expected error type, got interface {}`, and `ErrorContains`, `ErrorCode` and the rest reported that instead of `got nil`. A nil value of any other type is still rejected as not an error
 
 <!--
 ## SECURITY
@@ -24,15 +22,15 @@ Vulnerabilities or security-related changes addressed in this release.
 Functionality that will be removed in a future release.
 -->
 
-<!--
 ## BREAKING CHANGES
-Changes that are not backwards compatible and require updates from consumers.
--->
 
-<!--
+- `Capture` takes exactly one value: `Capture[T any](t testing.TB, value T) *Value[T]`. Capturing several values at once moved to `CaptureAll`
+- `Capture(t, nil)` no longer compiles, since there is nothing to infer `T` from
+
 ## UPGRADE NOTES
-Steps required when upgrading from a previous version.
--->
+
+- `testingx.Capture(t, a, b)` becomes `testingx.CaptureAll(t, a, b)`
+- `testingx.Capture(t, nil)` becomes `testingx.Capture[error](t, nil)`, or whichever type the value stands in for
 
 # v0.1.0
 

@@ -26,10 +26,17 @@ func TestSomething(t *testing.T) {
 result := testingx.CallAs[MyStruct](t, myFunc).NoError().Capture()
 ```
 
-`Capture` wraps raw values into a `*Value` chain without calling a function.
+`Capture` wraps a single value into a `*Value` without calling a function. It is generic, so the value keeps its static type — a nil `error` is still an error to the error assertions — and `Capture()` returns `T`.
 
 ```go
-testingx.Capture(t, val1, val2).Equal(val2).Equal(val1)
+testingx.Capture(t, err).NoError()
+testingx.Capture(t, count).Equal(3)
+```
+
+`CaptureAll` wraps several values into a `*Value` chain. Like `Call`, the chain runs from the last value to the first.
+
+```go
+testingx.CaptureAll(t, val1, val2).Equal(val2).Equal(val1)
 ```
 
 ### Chaining

@@ -548,7 +548,48 @@ func TestCallAs(t *testing.T) {
 
 func TestCapture(t *testing.T) {
 	mock := &mocks.T{T: t}
-	value := Capture(mock, "hello", 42)
+
+	Capture(mock, 42).Equal(42)
+
+	got := Capture(mock, 42).Capture()
+	if got != 42 {
+		t.Errorf("Capture() = %d, want 42", got)
+	}
+
+	// An interface holding a value is asserted on as that value.
+	var held any = []string{"a", "b"}
+	Capture(mock, held).Len(2)
+
+	if mock.ErrorMessage != "" || mock.FatalMessage != "" {
+		t.Errorf("unexpected failure: %s%s", mock.ErrorMessage, mock.FatalMessage)
+	}
+}
+
+func TestCapture_nilError(t *testing.T) {
+	var nilErr error
+
+	t.Run("NoError", func(t *testing.T) {
+		mock := &mocks.T{T: t}
+		Capture(mock, nilErr).NoError()
+
+		if mock.ErrorMessage != "" || mock.FatalMessage != "" {
+			t.Errorf("unexpected failure: %s%s", mock.ErrorMessage, mock.FatalMessage)
+		}
+	})
+
+	t.Run("ErrorContains", func(t *testing.T) {
+		mock := &mocks.T{T: t}
+		Capture(mock, nilErr).ErrorContains("boom")
+
+		if want := `expected error containing "boom", got nil`; mock.ErrorMessage != want {
+			t.Errorf("\nwant: %q\ngot:  %q", want, mock.ErrorMessage)
+		}
+	})
+}
+
+func TestCaptureAll(t *testing.T) {
+	mock := &mocks.T{T: t}
+	value := CaptureAll(mock, "hello", 42)
 
 	value.Equal(42).Equal("hello")
 
@@ -557,10 +598,10 @@ func TestCapture(t *testing.T) {
 	}
 }
 
-// A nil error passed to Capture arrives as a nil interface{}, so the error
+// A nil error passed to CaptureAll arrives as a nil interface{}, so the error
 // assertions have to recognise it as a nil error rather than as a value that
 // is not an error at all.
-func TestCapture_nilError(t *testing.T) {
+func TestCaptureAll_nilError(t *testing.T) {
 	var nilErr error
 
 	tcs := map[string]struct {
@@ -595,7 +636,7 @@ func TestCapture_nilError(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			mock := &mocks.T{T: t}
-			tc.validate(Capture(mock, tc.values...))
+			tc.validate(CaptureAll(mock, tc.values...))
 
 			if mock.FatalMessage != "" {
 				t.Errorf("unexpected fatal: %s", mock.FatalMessage)
