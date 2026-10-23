@@ -8,7 +8,7 @@ import (
 
 func (value *Value[Want]) isNillable() bool {
 	switch value.current.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		return true
 	default:
 		return false
@@ -24,7 +24,7 @@ func (value *Value[Want]) NotNil() *Value[Want] {
 	}
 
 	switch value.current.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		if value.current.IsNil() {
 			value.Fail("expected non-nil value, got nil")
 		}
@@ -44,7 +44,7 @@ func (value *Value[Want]) Nil(opts ...render3.OptsFn) *Value[Want] {
 	}
 
 	switch value.current.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		if !value.current.IsNil() {
 			o := render3.NewOpts(value.t, opts...)
 			value.Fail("expected nil value, got %s", render3.Render(value.current, o))

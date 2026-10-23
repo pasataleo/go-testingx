@@ -13,21 +13,21 @@ type T struct {
 }
 
 func (testing *T) Error(args ...any) {
-	testing.T.Helper()
+	testing.Helper()
 	testing.ErrorMessage = fmt.Sprint(args...)
 }
 
 func (testing *T) Errorf(format string, args ...any) {
-	testing.T.Helper()
+	testing.Helper()
 	testing.ErrorMessage = fmt.Sprintf(format, args...)
 }
 
 func (testing *T) Fatal(args ...any) {
-	testing.T.Helper()
+	testing.Helper()
 	testing.FatalMessage = fmt.Sprint(args...)
 }
 
 func (testing *T) Fatalf(format string, args ...any) {
-	testing.T.Helper()
+	testing.Helper()
 	testing.FatalMessage = fmt.Sprintf(format, args...)
 }
