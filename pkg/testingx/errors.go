@@ -85,6 +85,28 @@ func (value *Value[Want]) ErrorCode(code errorsx.Code) *Value[Want] {
 	return value.next
 }
 
+// HasErrorCode asserts that code appears anywhere in the error's tree,
+// aggregated branches included, as errorsx.IsCode reports. ErrorCode checks
+// only the error's own code.
+func (value *Value[Want]) HasErrorCode(code errorsx.Code) *Value[Want] {
+	value.t.Helper()
+
+	err, ok := value.asError()
+	if !ok {
+		return value.next
+	}
+
+	if err == nil {
+		value.Fail("expected error with code %q in it, got nil", code)
+		return value.next
+	}
+
+	if !errorsx.IsCode(err, code) {
+		value.Fail("expected error with code %q in it, got %q: %s", code, errorsx.ErrorCode(err), err.Error())
+	}
+	return value.next
+}
+
 func (value *Value[Want]) MatchesError(msg string) *Value[Want] {
 	value.t.Helper()
 

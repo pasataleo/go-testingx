@@ -104,6 +104,7 @@ result := testingx.CallAs[Config](t, loadConfig, path).NoError().Capture()
 - `MatchesError(msg)` - asserts the error message equals `msg`
 - `MatchesErrorf(format, args...)` - formatted version of `MatchesError`
 - `ErrorCode(code)` - asserts the error has the given `errorsx.Code`
+- `HasErrorCode(code)` - asserts the given `errorsx.Code` appears anywhere in the error's tree, as `errorsx.IsCode` reports
 - `ErrorContains(substring)` - asserts the error message contains `substring`
 - `ErrorContainsf(format, args...)` - formatted version of `ErrorContains`
 - `HasError(msg)` - asserts an aggregated error contains a child with message `msg`

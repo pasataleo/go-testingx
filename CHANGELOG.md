@@ -3,6 +3,7 @@
 ## FEATURES
 
 - `CaptureAll`, for capturing several values at once.
+- `HasErrorCode` asserts a code appears anywhere in an error's tree.
 
 ## IMPROVEMENTS
 

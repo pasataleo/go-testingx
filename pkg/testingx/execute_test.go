@@ -448,6 +448,38 @@ func TestCall(t *testing.T) {
 			wantError: `expected error with code "not_found", got nil`,
 		},
 
+		// HasErrorCode
+		"has error code": {
+			fn: func() error {
+				return errorsx.Append(errors.New("plain"), errorsx.New(errorsx.NotFound, nil, "not found"))
+			},
+			validate: func(value *Value[interface{}]) {
+				value.HasErrorCode(errorsx.NotFound)
+			},
+		},
+		"has error code wrapped": {
+			fn: func() error {
+				return errorsx.New(errorsx.Internal, errorsx.New(errorsx.NotFound, nil, "not found"), "loading")
+			},
+			validate: func(value *Value[interface{}]) {
+				value.HasErrorCode(errorsx.NotFound)
+			},
+		},
+		"has error code (error)": {
+			fn: func() error { return errorsx.New(errorsx.NotFound, nil, "not found") },
+			validate: func(value *Value[interface{}]) {
+				value.HasErrorCode(errorsx.Internal)
+			},
+			wantError: `expected error with code "internal" in it, got "not_found": not found`,
+		},
+		"has error code nil (error)": {
+			fn: func() error { return nil },
+			validate: func(value *Value[interface{}]) {
+				value.HasErrorCode(errorsx.NotFound)
+			},
+			wantError: `expected error with code "not_found" in it, got nil`,
+		},
+
 		// HasError
 		"contains error": {
 			fn: func() error {
